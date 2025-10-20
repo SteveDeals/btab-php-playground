@@ -1,4 +1,9 @@
-<?php require_once 'api-helper.php'; ?>
+<?php
+require_once 'api-helper.php';
+
+$apiKeyInfo = getApiKeyInfo();
+$user = getCurrentUser();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,12 +106,73 @@
         .nav a {
             margin-right: 15px;
         }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+        .user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        .api-key-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        .api-key-badge.user {
+            background: #d4edda;
+            color: #155724;
+        }
+        .api-key-badge.config {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .api-key-badge.none {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Btab PHP Playground</h1>
-        <p class="subtitle">Build your custom storefront with the Btab API</p>
+        <div class="header">
+            <div>
+                <h1>🚀 Btab PHP Playground</h1>
+                <p class="subtitle">Build your custom storefront with the Btab API</p>
+                <?php if ($apiKeyInfo['has_key']): ?>
+                    <div class="api-key-badge <?php echo $apiKeyInfo['source']; ?>">
+                        <?php if ($apiKeyInfo['source'] === 'user'): ?>
+                            🔑 Using your API key (<?php echo htmlspecialchars($apiKeyInfo['username']); ?>)
+                        <?php else: ?>
+                            🔑 Using default API key
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="user-info">
+                <?php if ($user): ?>
+                    <img src="<?php echo htmlspecialchars($user['avatar_url']); ?>" alt="Avatar">
+                    <div>
+                        <div><strong><?php echo htmlspecialchars($user['github_username']); ?></strong></div>
+                        <a href="/manage-key.php" style="color: #667eea;">Manage Key</a> |
+                        <a href="/auth/logout.php" style="color: #666;">Logout</a>
+                    </div>
+                <?php else: ?>
+                    <a href="/auth/login.php" class="btn">Login with GitHub</a>
+                <?php endif; ?>
+            </div>
+        </div>
 
         <?php if (!isApiKeyConfigured()): ?>
             <div class="status status-warning">
@@ -117,30 +183,30 @@
             <div class="setup-steps">
                 <h2>Quick Setup Guide</h2>
                 <ol>
+                    <li><strong>Login with GitHub:</strong><br>
+                        Click the "Login with GitHub" button above to authenticate
+                    </li>
                     <li><strong>Register for a Btab vendor account:</strong><br>
                         Go to <a href="https://dashboard.btab.app/register" target="_blank">dashboard.btab.app/register</a> and create your account
                     </li>
                     <li><strong>Get your API key:</strong><br>
                         After registration, login to the dashboard and copy your API key
                     </li>
-                    <li><strong>Configure this playground:</strong><br>
-                        Edit the config file and add your API key:
-                        <div class="code"># On the VPS, edit:
-/home/adminuser/php-playground/config/config.php
-
-# Change this line:
-define('BTAB_API_KEY', 'your_api_key_here');</div>
+                    <li><strong>Add your API key:</strong><br>
+                        Once logged in to the playground, go to "Manage Key" and paste your API key
                     </li>
-                    <li><strong>Restart the container:</strong><br>
-                        <div class="code">cd /home/adminuser/php-playground
-docker-compose restart</div>
+                    <li><strong>Start building!</strong><br>
+                        Use the example pages to see the API in action
                     </li>
                 </ol>
             </div>
 
             <div class="nav">
-                <a href="https://dashboard.btab.app/register" class="btn" target="_blank">Register for Account</a>
-                <a href="https://dashboard.btab.app" class="btn" target="_blank">Login to Dashboard</a>
+                <?php if (!$user): ?>
+                    <a href="/auth/login.php" class="btn">Login with GitHub</a>
+                <?php endif; ?>
+                <a href="https://dashboard.btab.app/register" class="btn" target="_blank">Register for API Key</a>
+                <a href="https://dashboard.btab.app" class="btn" target="_blank">Dashboard</a>
             </div>
 
         <?php else: ?>
@@ -160,10 +226,12 @@ docker-compose restart</div>
                 <h2>What's Next?</h2>
                 <ul>
                     <li>Check out the example pages above to see the API in action</li>
-                    <li>All your PHP files go in <code>/home/adminuser/php-playground/public/</code></li>
-                    <li>API helper functions are in <code>api-helper.php</code></li>
+                    <li>API helper functions are in <code>api-helper.php</code> - use them in your PHP code</li>
                     <li>View the PHP Developer Guide for complete examples</li>
-                    <li>Upload files via SFTP to start building your custom storefront</li>
+                    <li>Clone the GitHub repo and push your changes - they auto-deploy!</li>
+                    <?php if ($user && $apiKeyInfo['source'] === 'user'): ?>
+                        <li><strong>Your API key is active:</strong> All API calls will use your key automatically</li>
+                    <?php endif; ?>
                 </ul>
             </div>
         <?php endif; ?>

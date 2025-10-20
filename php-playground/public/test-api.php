@@ -1,14 +1,27 @@
 <?php
 require_once 'api-helper.php';
 
+// Get API key info
+$apiKeyInfo = getApiKeyInfo();
+$user = getCurrentUser();
+
 // Test API connection
 $testResults = [];
 
 // Test 1: Check if API key is configured
+$keyStatusMessage = 'API key is not configured';
+if ($apiKeyInfo['has_key']) {
+    if ($apiKeyInfo['source'] === 'user') {
+        $keyStatusMessage = 'Using your personal API key (logged in as ' . $apiKeyInfo['username'] . ')';
+    } else {
+        $keyStatusMessage = 'Using default API key from config.php';
+    }
+}
+
 $testResults[] = [
     'name' => 'API Key Configuration',
-    'status' => isApiKeyConfigured() ? 'pass' : 'fail',
-    'message' => isApiKeyConfigured() ? 'API key is configured' : 'API key is not set in config.php'
+    'status' => $apiKeyInfo['has_key'] ? 'pass' : 'fail',
+    'message' => $keyStatusMessage
 ];
 
 // Test 2: Try to fetch products
@@ -85,10 +98,23 @@ if (isApiKeyConfigured()) {
 <body>
     <div class="container">
         <header>
-            <h1>API Connection Test</h1>
-            <div class="nav">
-                <a href="index.php">← Home</a>
-                <a href="products.php">Products</a>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>API Connection Test</h1>
+                    <div class="nav">
+                        <a href="index.php">← Home</a>
+                        <a href="products.php">Products</a>
+                    </div>
+                </div>
+                <div style="font-size: 0.9em;">
+                    <?php if ($user): ?>
+                        <strong><?php echo htmlspecialchars($user['github_username']); ?></strong> |
+                        <a href="/manage-key.php" style="color: #667eea;">Manage Key</a> |
+                        <a href="/auth/logout.php" style="color: #666;">Logout</a>
+                    <?php else: ?>
+                        <a href="/auth/login.php" style="color: #667eea;">Login with GitHub</a>
+                    <?php endif; ?>
+                </div>
             </div>
         </header>
 
@@ -113,10 +139,18 @@ if (isApiKeyConfigured()) {
         <div class="info" style="margin-top: 30px;">
             <h3>Troubleshooting Tips:</h3>
             <ul style="margin-left: 20px; margin-top: 10px;">
+                <?php if (!$user): ?>
+                    <li><strong>Not logged in?</strong> <a href="/auth/login.php">Login with GitHub</a> to manage your own API key</li>
+                <?php endif; ?>
+                <?php if ($user && !$apiKeyInfo['has_key']): ?>
+                    <li><strong>No API key configured!</strong> <a href="/manage-key.php">Go to Manage Key</a> to add yours</li>
+                <?php endif; ?>
                 <li>Make sure you've registered at <a href="https://dashboard.btab.app/register" target="_blank">dashboard.btab.app</a></li>
-                <li>Copy your API key from the dashboard after logging in</li>
-                <li>Edit <code>/home/adminuser/php-playground/config/config.php</code> and add your API key</li>
-                <li>Restart the container: <code>docker-compose restart</code></li>
+                <li>Copy your API key from the <a href="https://dashboard.btab.app" target="_blank">dashboard</a> after logging in</li>
+                <?php if ($user): ?>
+                    <li>Add your key at <a href="/manage-key.php">Manage Key</a> - it will be used automatically</li>
+                <?php endif; ?>
+                <li>Check the <a href="/">homepage</a> for setup instructions</li>
             </ul>
         </div>
     </div>

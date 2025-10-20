@@ -8,10 +8,16 @@ A PHP development environment for building customer-facing storefronts with the 
 
 ## Quick Start for Developers
 
-### 1. Get Your API Key
+### 1. Login and Add Your API Key
 
-1. Register at [dashboard.btab.app/register](https://dashboard.btab.app/register)
-2. Login and copy your API key from the dashboard
+**NEW: Self-Service API Key Management!**
+
+1. Visit [playground-php.btab.app](https://playground-php.btab.app)
+2. Click "Login with GitHub" to authenticate
+3. Register for a Btab vendor account at [dashboard.btab.app/register](https://dashboard.btab.app/register)
+4. Copy your API key from the dashboard
+5. Go to "Manage Key" in the playground and paste your key
+6. Start building - all API calls automatically use your key!
 
 ### 2. Set Up Locally (Optional)
 
@@ -86,12 +92,36 @@ btab-frontend-playground/
 4. **Docker restarts** - PHP container picks up changes
 5. **Live in seconds** - Changes appear at playground-php.btab.app
 
+## Features
+
+✨ **Self-Service API Key Management**
+- Developers login with GitHub OAuth
+- Add/update their own Btab API keys
+- No admin intervention needed
+- Scales to 200+ developers
+
+🔐 **Secure Key Storage**
+- API keys encrypted before storage
+- Stored in SQLite database
+- Automatic key selection per developer
+- Falls back to default config key if not logged in
+
+⚡ **Auto-Deploy**
+- Push to GitHub → Changes live in ~30 seconds
+- No manual deployment needed
+
 ## Security
 
 ✅ **API keys are safe:**
+- Individual developer keys encrypted in database
 - `config.php` is excluded from git via `.gitignore`
 - Only `config.example.php` is tracked
-- API key stays server-side (never in browser JavaScript)
+- API keys stay server-side (never in browser JavaScript)
+
+✅ **GitHub OAuth:**
+- Secure authentication via GitHub
+- CSRF protection with state tokens
+- Session-based user management
 
 ✅ **Read-only config mount:**
 - Config directory is mounted as `:ro` (read-only) in Docker
@@ -114,10 +144,20 @@ See **[PHP_DEVELOPER_GUIDE.md](./PHP_DEVELOPER_GUIDE.md)** for:
 - **Dashboard**: https://dashboard.btab.app
 - **Documentation**: Btab API uses Bearer token authentication
 
+## Admin Setup
+
+For administrators setting up the OAuth integration, see **[OAUTH_SETUP.md](./OAUTH_SETUP.md)**:
+- How to create GitHub OAuth app
+- Environment variable configuration
+- Database setup
+- Troubleshooting guide
+
 ## Troubleshooting
 
 ### API key not working?
-Contact the admin to verify your API key is configured on the server.
+1. Make sure you're logged in with GitHub
+2. Go to "Manage Key" and verify your key is saved
+3. Check [playground-php.btab.app/test-api.php](https://playground-php.btab.app/test-api.php) for API connection status
 
 ### Changes not showing up?
 1. Check GitHub Actions tab for deployment status
