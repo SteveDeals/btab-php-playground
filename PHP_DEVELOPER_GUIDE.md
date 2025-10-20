@@ -384,103 +384,48 @@ fetch('/api-proxy.php?endpoint=my-products')
 
 ---
 
-## VPS Setup Options
+## Working with the Playground
 
-### Option 1: Use Existing VPS (Simplest)
+### Live Environment
+The playground is already deployed and ready to use:
+- **Live Site**: https://playground-php.btab.app
+- **API Endpoint**: https://api.btab.app/api/v1
+- **Auto-Deploy**: Push to GitHub, changes go live automatically
 
-```bash
-# Install PHP
-sudo apt update
-sudo apt install php8.1 php8.1-curl php8.1-json php8.1-mbstring
+### Local Development (Optional)
 
-# Install Apache
-sudo apt install apache2 libapache2-mod-php8.1
-
-# Create directory
-sudo mkdir -p /var/www/php-frontend/public
-sudo mkdir -p /var/www/php-frontend/config
-
-# Set permissions
-sudo chown -R www-data:www-data /var/www/php-frontend
-
-# Configure Apache
-sudo nano /etc/apache2/sites-available/php-frontend.conf
-```
-
-**Apache Config:**
-```apache
-<VirtualHost *:80>
-    ServerName php-frontend.btab.app
-    DocumentRoot /var/www/php-frontend/public
-
-    <Directory /var/www/php-frontend/public>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-
-    # Block access to config directory
-    <Directory /var/www/php-frontend/config>
-        Require all denied
-    </Directory>
-
-    ErrorLog ${APACHE_LOG_DIR}/php-frontend-error.log
-    CustomLog ${APACHE_LOG_DIR}/php-frontend-access.log combined
-</VirtualHost>
-```
+If you want to test locally before deploying:
 
 ```bash
-# Enable site
-sudo a2ensite php-frontend
-sudo a2enmod rewrite
-sudo systemctl reload apache2
+# Clone the repository
+git clone https://github.com/SteveDeals/btab-php-playground.git
+cd btab-php-playground/php-playground
+
+# Copy config example
+cp config/config.example.php config/config.php
+
+# Edit config.php and add your API key
+nano config/config.php
+
+# Run with Docker
+docker compose up -d
+
+# Visit http://localhost
 ```
 
-### Option 2: PHP with Docker (If you prefer)
+### Deployment Workflow
 
-**docker-compose.yml:**
-```yaml
-version: '3'
-services:
-  php-frontend:
-    image: php:8.1-apache
-    container_name: php-frontend
-    volumes:
-      - ./php-site:/var/www/html
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.php-frontend.rule=Host(`php.btab.app`)"
-    environment:
-      - BTAB_API_KEY=${BTAB_API_KEY}
-```
+1. **Edit files** in `php-playground/public/`
+2. **Commit changes**: `git commit -am "Your message"`
+3. **Push to GitHub**: `git push origin master`
+4. **Auto-deploys** in ~30 seconds to https://playground-php.btab.app
 
-### Option 3: Let Developer Use Their Own Hosting
+### Getting Your API Key
 
-They can use:
-- Any shared hosting (GoDaddy, Bluehost, etc.)
-- Their own VPS
-- Local XAMPP/WAMP for development
-
-Just give them:
-1. API endpoint: `https://api.btab.app/api/v1`
-2. Test API key
-3. Code examples above
-
----
-
-## Test API Credentials
-
-Create a test vendor account:
-```
-Email: php-developer@test.com
-Password: PhpTest123
-Company: PHP Test Store
-```
-
-Or use existing demo account:
-```
-API Key: btab_live_e3aca198eb1e0d9911a0c322cc792315e3dd0ae5fb607ab535e9466f044dee4e
-```
+1. Register at: https://dashboard.btab.app/register
+2. Login to the dashboard
+3. Copy your API key
+4. Contact admin to add it to the server (for security, API keys are not in git)
 
 ---
 
@@ -502,36 +447,40 @@ API Key: btab_live_e3aca198eb1e0d9911a0c322cc792315e3dd0ae5fb607ab535e9466f044de
 
 ---
 
-## Testing Your PHP Site
+## Testing Your Integration
 
-### 1. Test Products Loading
-```bash
-curl http://php-frontend.btab.app/products.php
-```
+### 1. Visit Test Pages
+- **API Connection**: https://playground-php.btab.app/test-api.php
+- **Products Page**: https://playground-php.btab.app/products.php
+- **Homepage**: https://playground-php.btab.app
 
-### 2. Test API Proxy
-```bash
-curl http://php-frontend.btab.app/api-proxy.php?endpoint=my-products
-```
+### 2. Check Deployment Status
+After pushing changes:
+1. Go to GitHub Actions tab in your repository
+2. Watch the deployment workflow
+3. Wait ~30 seconds for changes to appear live
 
-### 3. Check PHP Errors
-```bash
-tail -f /var/log/apache2/error.log
-```
+### 3. Debug Issues
+- Check `/test-api.php` for API connection status
+- View browser console for JavaScript errors
+- Contact admin if API key needs updating
 
 ---
 
 ## Common Issues & Solutions
 
-### cURL not working?
-```bash
-sudo apt install php8.1-curl
-sudo systemctl restart apache2
-```
+### API key not configured?
+Visit `/test-api.php` to check API connection status. If it shows "API key not configured", contact admin to add your key to the server.
+
+### Changes not appearing?
+1. Check GitHub Actions tab for deployment status
+2. Wait ~30 seconds after push
+3. Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R)
+4. Check deployment logs in GitHub Actions
 
 ### Sessions not working?
+Make sure `session_start()` is at the very top of your PHP file:
 ```php
-// Make sure session_start() is at the very top
 <?php
 session_start();
 // Rest of code...
@@ -539,16 +488,11 @@ session_start();
 ```
 
 ### CORS errors with AJAX?
-Add to PHP:
-```php
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-```
-
-### Can't write to directories?
-```bash
-sudo chown -R www-data:www-data /var/www/php-frontend
-sudo chmod -R 755 /var/www/php-frontend
+The API already handles CORS. If you're making AJAX calls, use the included `/api-proxy.php` pattern:
+```javascript
+fetch('/api-proxy.php?endpoint=my-products')
+    .then(res => res.json())
+    .then(data => console.log(data));
 ```
 
 ---
