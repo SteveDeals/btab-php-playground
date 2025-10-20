@@ -20,12 +20,15 @@ jobs:
         script: |
           echo "🚀 Deploying PHP Playground..."
 
-          # Navigate to PHP playground directory
+          # Navigate to repository root
           cd /home/adminuser/php-playground
 
           # Pull latest changes
           echo "📥 Pulling latest code from GitHub..."
           git pull origin main || git pull origin master
+
+          # Navigate to php-playground subdirectory where docker-compose.yml is
+          cd php-playground
 
           # Restart the PHP container
           echo "🔄 Restarting PHP container..."
