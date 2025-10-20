@@ -12,33 +12,26 @@ Your PHP playground is live at: **https://playground-php.btab.app**
 1. Register for a vendor account: [https://dashboard.btab.app/register](https://dashboard.btab.app/register)
 2. Login to the dashboard after registration
 3. Copy your API key from the dashboard
+4. Contact admin to add your API key to the server
 
-### 3. Configure Your API Key
+### 3. Start Building!
 
-Edit the config file on the VPS:
+1. Clone this repository
+2. Edit files in `public/` directory
+3. Commit and push to GitHub
+4. Changes auto-deploy to https://playground-php.btab.app in ~30 seconds!
 
 ```bash
-# SSH to VPS
-ssh btab
+# Make changes
+nano public/index.php
 
-# Edit config
-nano /home/adminuser/php-playground/config/config.php
+# Commit and push
+git add .
+git commit -m "Update homepage"
+git push origin master
 
-# Change this line:
-define('BTAB_API_KEY', 'your_api_key_here');
-
-# Save and exit (Ctrl+X, then Y, then Enter)
-
-# Restart container
-cd /home/adminuser/php-playground
-docker compose restart
+# Auto-deploys!
 ```
-
-### 4. Start Building!
-
-Your files go in: `/home/adminuser/php-playground/public/`
-
-Upload via SFTP or edit directly on the VPS.
 
 ## Example Pages
 
@@ -69,7 +62,7 @@ echo formatPrice(1999); // Outputs: $19.99
 ## Directory Structure
 
 ```
-/home/adminuser/php-playground/
+php-playground/
 ├── public/              # Your PHP files (web-accessible)
 │   ├── index.php
 │   ├── products.php
@@ -77,7 +70,8 @@ echo formatPrice(1999); // Outputs: $19.99
 │   ├── api-helper.php
 │   └── health.php
 ├── config/             # Configuration (PRIVATE - not web-accessible)
-│   └── config.php      # Put your API key here
+│   ├── config.example.php  # Template (in git)
+│   └── config.php          # Your API key (NOT in git)
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md           # This file
@@ -96,51 +90,45 @@ echo formatPrice(1999); // Outputs: $19.99
 - `GET /orders` - List your orders
 - `GET /vendor/me` - Get your vendor profile
 
-## Working with Files
+## Development Workflow
 
-### Option 1: SFTP Upload
+### Edit Locally
 
-Use any SFTP client (FileZilla, Cyberduck, etc.):
+1. Clone the repository
+2. Edit files in your favorite editor
+3. Test locally with Docker (optional)
+4. Push to GitHub
 
-- **Host**: your VPS IP or domain
-- **Username**: adminuser
-- **Path**: `/home/adminuser/php-playground/public/`
-
-### Option 2: Direct Edit on VPS
-
-```bash
-ssh btab
-cd /home/adminuser/php-playground/public
-nano myfile.php
-```
-
-### Option 3: Git Clone
+### Local Testing (Optional)
 
 ```bash
-ssh btab
-cd /home/adminuser/php-playground/public
-git clone your-repo.git .
-```
+# Copy config template
+cp config/config.example.php config/config.php
 
-## Container Management
+# Add your API key to config.php
 
-```bash
-# Restart container (after config changes)
-cd /home/adminuser/php-playground
-docker compose restart
-
-# View logs
-docker compose logs -f
-
-# Rebuild container (after Dockerfile changes)
-docker compose up -d --build
-
-# Stop container
-docker compose down
-
-# Start container
+# Run with Docker
 docker compose up -d
+
+# Visit http://localhost
 ```
+
+### Deploy to Production
+
+Simply push to GitHub and it auto-deploys:
+
+```bash
+git add .
+git commit -m "Your changes"
+git push origin master
+# Wait ~30 seconds - live at playground-php.btab.app!
+```
+
+### Check Deployment Status
+
+- Go to GitHub Actions tab in the repository
+- Watch the "Deploy PHP Playground to VPS" workflow
+- Green checkmark = deployed successfully!
 
 ## Important Security Notes
 
@@ -166,29 +154,30 @@ docker compose up -d
 
 ### API key not working?
 
-1. Check it's correctly set in `/home/adminuser/php-playground/config/config.php`
-2. Restart container: `docker compose restart`
-3. Test connection at: https://playground-php.btab.app/test-api.php
+Visit https://playground-php.btab.app/test-api.php to check API connection status. If it shows "API key not configured", contact admin to add your key to the server.
+
+### Changes not showing up?
+
+1. Check GitHub Actions tab for deployment status
+2. Wait ~30 seconds after pushing
+3. Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R)
+4. View deployment logs in GitHub Actions
 
 ### Page not loading?
 
-```bash
-# Check if container is running
-docker ps | grep php-playground
-
-# View logs
-cd /home/adminuser/php-playground
-docker compose logs -f
-```
+- Check if deployment succeeded in GitHub Actions
+- Try `/test-api.php` to verify the site is up
+- Contact admin if issue persists
 
 ### CORS errors?
 
-The API proxy pattern in `api-helper.php` handles this for you.
+The API proxy pattern in `api-helper.php` handles this for you automatically.
 
 ## Need Help?
 
-- Check example files in `/home/adminuser/php-playground/public/`
-- Read the PHP Developer Guide
-- Test API connection at /test-api.php
+- **API Documentation**: See `../PHP_DEVELOPER_GUIDE.md` in repo root
+- **Test API**: https://playground-php.btab.app/test-api.php
+- **Dashboard**: https://dashboard.btab.app
+- **Example Files**: Check `public/` directory for working examples
 
 Happy coding! 🚀
