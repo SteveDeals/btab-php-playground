@@ -116,10 +116,9 @@ $error = $data['error'] ?? null;
                         <p><?php echo htmlspecialchars($product['description'] ?? ''); ?></p>
                         
                         <div class="product-price">
-                            <?php 
-                            $price = $product['custom_pricing'] 
-                                ? $product['custom_retail_price_cents'] 
-                                : $product['retail_price_cents'];
+                            <?php
+                            // Use custom price if available, otherwise use retail price
+                            $price = $product['custom_retail_price_cents'] ?? $product['retail_price_cents'] ?? 0;
                             echo formatPrice($price);
                             ?>
                         </div>
