@@ -114,46 +114,27 @@ See **[PHP_DEVELOPER_GUIDE.md](./PHP_DEVELOPER_GUIDE.md)** for:
 - **Dashboard**: https://dashboard.btab.app
 - **Documentation**: Btab API uses Bearer token authentication
 
-## Common Tasks
+## Troubleshooting
 
-### View Logs
+### API key not working?
+Contact the admin to verify your API key is configured on the server.
 
-```bash
-ssh <your-vps>
-cd /home/adminuser/php-playground
-docker compose logs -f
-```
+### Changes not showing up?
+1. Check GitHub Actions tab for deployment status
+2. Wait ~30 seconds for deployment to complete
+3. Hard refresh your browser (Ctrl+Shift+R)
 
-### Restart Container
+### Need help?
+- **API Questions**: See [PHP_DEVELOPER_GUIDE.md](./PHP_DEVELOPER_GUIDE.md)
+- **Dashboard Issues**: https://dashboard.btab.app
+- **Deployment Status**: Check the Actions tab in GitHub
 
-```bash
-ssh <your-vps>
-cd /home/adminuser/php-playground
-docker compose restart
-```
+## Resources
 
-### Update API Key on Server
-
-```bash
-ssh <your-vps>
-nano /home/adminuser/php-playground/config/config.php
-cd /home/adminuser/php-playground
-docker compose restart
-```
-
-## GitHub Secrets Required
-
-For auto-deployment to work, configure these secrets in your GitHub repository settings:
-
-- `VPS_HOST` - Your VPS IP or hostname
-- `VPS_USERNAME` - SSH username (usually `adminuser`)
-- `VPS_SSH_KEY` - Private SSH key for authentication
-
-## Support
-
-- **API Issues**: Check dashboard.btab.app
-- **Deployment Issues**: Check GitHub Actions tab
-- **PHP Errors**: Visit `/test-api.php` on the live site
+- **Live Site**: https://playground-php.btab.app
+- **API Documentation**: See PHP_DEVELOPER_GUIDE.md
+- **Example Pages**: /products.php, /test-api.php
+- **Register for API Key**: https://dashboard.btab.app/register
 
 ## License
 
