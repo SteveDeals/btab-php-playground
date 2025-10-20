@@ -1,0 +1,25 @@
+services:
+  php-playground:
+    build: .
+    container_name: btab-php-playground
+    restart: unless-stopped
+    volumes:
+      - ./public:/var/www/html
+      - ./config:/var/config:ro
+    networks:
+      - traefik-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.php-playground.rule=Host(`playground-php.btab.app`)"
+      - "traefik.http.routers.php-playground.entrypoints=websecure"
+      - "traefik.http.routers.php-playground.tls.certresolver=letsencrypt"
+      - "traefik.http.services.php-playground.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  traefik-network:
+    external: true

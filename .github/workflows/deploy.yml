@@ -1,0 +1,52 @@
+name: Deploy PHP Playground to VPS
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: 22
+        script: |
+          echo "🚀 Deploying PHP Playground..."
+
+          # Navigate to PHP playground directory
+          cd /home/adminuser/php-playground
+
+          # Pull latest changes
+          echo "📥 Pulling latest code from GitHub..."
+          git pull origin main || git pull origin master
+
+          # Restart the PHP container
+          echo "🔄 Restarting PHP container..."
+          docker compose restart
+
+          # Show container status
+          echo "📊 Container status:"
+          docker ps | grep php-playground
+
+          echo "✅ Deployment complete!"
+
+    - name: Verify Deployment
+      run: |
+        echo "🔍 Verifying deployment..."
+        sleep 10
+
+        # Check if site is accessible
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://playground-php.btab.app || echo "000")
+
+        if [ "$response" = "200" ]; then
+          echo "✅ Site is accessible (HTTP $response)"
+        else
+          echo "⚠️ Site returned HTTP $response (may still be starting up)"
+        fi
