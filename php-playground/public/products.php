@@ -111,7 +111,7 @@ $error = $data['error'] ?? null;
         <?php else: ?>
             <div class="products-grid">
                 <?php foreach ($products as $product): ?>
-                    <?php print_r($product); ?>
+                    <?php //print_r($product); ?>
                     <div class="product-card">
                         <div class="aspect-video bg-gray-100 flex items-center justify-center relative">
                             <img src="<?php echo htmlspecialchars($product['image_url']); ?>" alt="productimage"/ width=200></div>
@@ -122,7 +122,7 @@ $error = $data['error'] ?? null;
                             <?php
                             // Use custom price if available, otherwise use retail price
                             $price = $product['custom_retail_price_cents'] ?? $product['retail_price_cents'] ?? 0;
-                            //echo formatPrice($price);
+                            echo formatPrice($price);
                             ?>
                         </div>
                         
